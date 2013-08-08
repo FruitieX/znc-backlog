@@ -61,21 +61,14 @@ public:
 		}
 	}
 
-	virtual EModRet OnStatusCommand(CString& sCommand) {
-		if (sCommand.Equals("SAMPLE")) {
-			PutModule("Hi, I'm your friendly sample module.");
-			return HALT;
-		}
-
-		return CONTINUE;
-	}
+	
 };
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
 	Info.SetWikiPage("sample");
 	Info.SetHasArgs(true);
-	Info.SetArgsHelpText("Description of module arguments goes here.");
+	Info.SetArgsHelpText("Takes %Channelname% and %number of lines% as arguments");
 }
 
-USERMODULEDEFS(CBacklogMod, "To be used as a sample for writing modules")
+USERMODULEDEFS(CBacklogMod, "Module for getting the last X lines of a channels log.")
 
