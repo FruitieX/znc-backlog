@@ -33,9 +33,9 @@ protected:
 	}
 };
 
-class CSampleMod : public CModule {
+class CBacklogMod : public CModule {
 public:
-	MODCONSTRUCTOR(CSampleMod) {}
+	MODCONSTRUCTOR(CBacklogMod) {}
 
 	virtual bool OnLoad(const CString& sArgs, CString& sMessage) {
 		PutModule("I'm being loaded with the arguments: [" + sArgs + "]");
@@ -45,7 +45,7 @@ public:
 		return true;
 	}
 
-	virtual ~CSampleMod() {
+	virtual ~CBacklogMod() {
 		PutModule("I'm being unloaded!");
 	}
 
@@ -250,11 +250,11 @@ public:
 	}
 };
 
-template<> void TModInfo<CSampleMod>(CModInfo& Info) {
+template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
 	Info.SetWikiPage("sample");
 	Info.SetHasArgs(true);
 	Info.SetArgsHelpText("Description of module arguments goes here.");
 }
 
-USERMODULEDEFS(CSampleMod, "To be used as a sample for writing modules")
+USERMODULEDEFS(CBacklogMod, "To be used as a sample for writing modules")
 
