@@ -20,18 +20,6 @@
 
 using std::vector;
 
-class CSampleTimer : public CTimer {
-public:
-
-	CSampleTimer(CModule* pModule, unsigned int uInterval, unsigned int uCycles, const CString& sLabel, const CString& sDescription) : CTimer(pModule, uInterval, uCycles, sLabel, sDescription) {}
-	virtual ~CSampleTimer() {}
-
-private:
-protected:
-	virtual void RunJob() {
-		m_pModule->PutModule("TEST!!!!");
-	}
-};
 
 class CBacklogMod : public CModule {
 public:
@@ -70,5 +58,5 @@ template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
 	Info.SetArgsHelpText("Takes %Channelname% and %number of lines% as arguments");
 }
 
-USERMODULEDEFS(CBacklogMod, "Module for getting the last X lines of a channels log.")
+NETWORKMODULEDEFS(CBacklogMod, "Module for getting the last X lines of a channels log.")
 
