@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <znc/FileUtils.h>
 #include <znc/Client.h>
 #include <znc/Chan.h>
 #include <znc/Modules.h>
@@ -44,12 +45,26 @@ public:
 
 
 	virtual void OnModCommand(const CString& sCommand) {
+		/*
 		if (sCommand.Equals("TIMERS")) {
 			ListTimers();
 		}
-	}
+		*/
+		// TODO: sanity check on file path, see log.cpp
 
-	
+		CFile LogFile(sCommand);
+		CString Line;
+
+		if (LogFile.Open()) {
+			while (LogFile.ReadLine(Line)) {
+				PutModule(Line);
+			}
+		} else {
+			PutModule("Could not open log file"); //  [" << sCommand << "]: " << strerror(errno));
+		}
+
+		LogFile.Close();
+	}
 };
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
