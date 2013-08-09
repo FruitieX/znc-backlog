@@ -19,59 +19,48 @@
 #include <znc/Chan.h>
 #include <znc/Modules.h>
 
-using std::vector;
-
-
 class CBacklogMod : public CModule {
 public:
 	MODCONSTRUCTOR(CBacklogMod) {}
 
-	virtual bool OnLoad(const CString& sArgs, CString& sMessage) {
-		PutModule("I'm being loaded with the arguments: [" + sArgs + "]");
-		//AddTimer(new CSampleTimer(this, 300, 0, "Sample", "Sample timer for sample things."));
-		//AddTimer(new CSampleTimer(this, 5, 20, "Another", "Another sample timer."));
-		//AddTimer(new CSampleTimer(this, 25000, 5, "Third", "A third sample timer."));
-		return true;
-	}
+	virtual bool OnLoad(const CString& sArgs, CString& sMessage);
+	virtual ~CBacklogMod();
+	virtual void OnModCommand(const CString& sCommand);
 
-	virtual ~CBacklogMod() {
-		PutModule("I'm being unloaded!");
-	}
-
-	virtual bool OnBoot() {
-		// This is called when the app starts up (only modules that are loaded in the config will get this event)
-		return true;
-	}
-
-
-	virtual void OnModCommand(const CString& sCommand) {
-		/*
-		if (sCommand.Equals("TIMERS")) {
-			ListTimers();
-		}
-		*/
-		// TODO: sanity check on file path, see log.cpp
-
-		CFile LogFile(sCommand);
-		CString Line;
-
-		if (LogFile.Open()) {
-			while (LogFile.ReadLine(Line)) {
-				PutModule(Line);
-			}
-		} else {
-			PutModule("Could not open log file [" + sCommand + "]: " + strerror(errno));
-		}
-
-		LogFile.Close();
-	}
+private:
+	CString			LogPath;
 };
 
+bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
+	PutModule("I'm being loaded with the arguments: [" + sArgs + "]");
+	return true;
+}
+
+CBacklogMod::~CBacklogMod() {
+	PutModule("I'm being unloaded!");
+}
+
+void CBacklogMod::OnModCommand(const CString& sCommand) {
+	CFile LogFile(sCommand);
+	CString Line;
+
+	if (LogFile.Open()) {
+		while (LogFile.ReadLine(Line)) {
+			PutModule(Line);
+		}
+	} else {
+		PutModule("Could not open log file [" + sCommand + "]: " + strerror(errno));
+	}
+
+	LogFile.Close();
+}
+
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
-	Info.SetWikiPage("sample");
+	Info.AddType(CModInfo::NetworkModule);
+	Info.AddType(CModInfo::GlobalModule);
+	Info.SetWikiPage("backlog");
+	Info.SetArgsHelpText("Takes path to logs as argument, use keywords: $USER, $NETWORK and $WINDOW");
 	Info.SetHasArgs(true);
-	Info.SetArgsHelpText("Takes %Channelname% and %number of lines% as arguments");
 }
 
 NETWORKMODULEDEFS(CBacklogMod, "Module for getting the last X lines of a channels log.")
-
