@@ -22,17 +22,36 @@
 class CBacklogMod : public CModule {
 public:
 	MODCONSTRUCTOR(CBacklogMod) {}
+		/*
+		AddHelpCommand();
+		AddCommand("LogPath",		static_cast<CModCommand::ModCmdFunc>(&CBacklogMod::SetLogPath),
+			"<path>");
+		AddCommand("Get",			static_cast<CModCommand::ModCmdFunc>(&CBacklogMod::SetLogPath),
+	}
+	*/
 
 	virtual bool OnLoad(const CString& sArgs, CString& sMessage);
 	virtual ~CBacklogMod();
 	virtual void OnModCommand(const CString& sCommand);
+	virtual void SetLogPath(const CString& Path);
 
 private:
 	CString			LogPath;
 };
 
 bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
+	LogPath = sArgs;
 	PutModule("I'm being loaded with the arguments: [" + sArgs + "]");
+
+	if(LogPath.empty()) {
+		LogPath = GetNV("LogPath");
+		if(LogPath.empty()) {
+			// TODO: guess logpath
+
+		}
+	} else {
+		SetNV("LogPath", LogPath);
+	}
 	return true;
 }
 
@@ -41,6 +60,22 @@ CBacklogMod::~CBacklogMod() {
 }
 
 void CBacklogMod::OnModCommand(const CString& sCommand) {
+	if (sCommand.Token(0).CaseCmp("help") == 0) {
+		// TODO: help text, look how AddHelpCommand() does it in other ZNC code
+		PutModule("Help");
+		return;
+	}
+	else if (sCommand.Token(0).CaseCmp("logpath") == 0) {
+		CString Args = sCommand.Token(1, true);
+		SetNV("LogPath", Args);
+		PutModule("LogPath set to: " + Args);
+		return;
+	}
+
+	CString User;
+	CString Network;
+	CString Channel;
+
 	CFile LogFile(sCommand);
 	CString Line;
 
@@ -55,11 +90,15 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	LogFile.Close();
 }
 
+void CBacklogMod::SetLogPath(const CString& Path) {
+	SetNV("LogPath", LogPath);
+}
+
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
 	Info.AddType(CModInfo::NetworkModule);
 	Info.AddType(CModInfo::GlobalModule);
 	Info.SetWikiPage("backlog");
-	Info.SetArgsHelpText("Takes path to logs as argument, use keywords: $USER, $NETWORK and $WINDOW");
+	Info.SetArgsHelpText("Takes as optional argument (and if given, sets) the log path, use keywords: $USER, $NETWORK and $WINDOW");
 	Info.SetHasArgs(true);
 }
 
