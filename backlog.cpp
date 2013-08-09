@@ -60,7 +60,7 @@ public:
 				PutModule(Line);
 			}
 		} else {
-			PutModule("Could not open log file"); //  [" << sCommand << "]: " << strerror(errno));
+			PutModule("Could not open log file [" + sCommand + "]: " + strerror(errno));
 		}
 
 		LogFile.Close();
