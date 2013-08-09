@@ -33,7 +33,6 @@ public:
 	virtual bool OnLoad(const CString& sArgs, CString& sMessage);
 	virtual ~CBacklogMod();
 	virtual void OnModCommand(const CString& sCommand);
-	virtual void SetLogPath(const CString& Path);
 
 private:
 	CString			LogPath;
@@ -51,6 +50,7 @@ bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
 		}
 	} else {
 		SetNV("LogPath", LogPath);
+		PutModule("LogPath set to: " + LogPath);
 	}
 	return true;
 }
@@ -66,9 +66,9 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 		return;
 	}
 	else if (sCommand.Token(0).CaseCmp("logpath") == 0) {
-		CString Args = sCommand.Token(1, true);
-		SetNV("LogPath", Args);
-		PutModule("LogPath set to: " + Args);
+		LogPath = sCommand.Token(1, true);
+		SetNV("LogPath", LogPath);
+		PutModule("LogPath set to: " + LogPath);
 		return;
 	}
 
@@ -88,10 +88,6 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	}
 
 	LogFile.Close();
-}
-
-void CBacklogMod::SetLogPath(const CString& Path) {
-	SetNV("LogPath", LogPath);
 }
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
