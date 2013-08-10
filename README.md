@@ -62,7 +62,6 @@ TODO
 - Flag for ignoring joins/parts
 - Server-time for timestamp, http://ircv3.org/extensions/server-time-3.2
 - Comments around FirstSpace etc (magic numbers!)
-- inChan() should be private function
 - make install rules (see kylef's plugins)
 - CDir instead of opendir(), see FileUtils.h
 - wiki page for the mod
