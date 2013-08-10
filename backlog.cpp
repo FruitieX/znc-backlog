@@ -207,7 +207,6 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 				}
 
 				m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
-				PutModule(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos));
 			} catch (int e) {
 				PutModule("Malformed log line! " + Line);
 			}
