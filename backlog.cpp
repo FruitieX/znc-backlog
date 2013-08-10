@@ -92,6 +92,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	if(reqLines <= 0) {
 		reqLines = 150;
 	}
+	reqLines = std::max(std::min(reqLines, 1000), 1);
 
 	CString Path = LogPath.substr(); // make copy
 	Path.Replace("$NETWORK", Network);
