@@ -189,7 +189,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 	// now actually print
 	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
-		if(isInChan || true) {
+		if(isInChan) {
 			CString Line = *it;
 			size_t FirstWS = Line.find_first_of(' '); // position of first whitespace char in line
 			size_t NickLen = 3;
