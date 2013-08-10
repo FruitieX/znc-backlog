@@ -33,6 +33,7 @@ public:
 	virtual bool OnLoad(const CString& sArgs, CString& sMessage);
 	virtual ~CBacklogMod();
 	virtual void OnModCommand(const CString& sCommand);
+	bool inChan(const CString& Chan);
 
 private:
 	CString			LogPath;
@@ -152,20 +153,37 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 		}
 	}
 
+	bool isInChan = CBacklogMod::inChan(Channel);
+
 	// now actually print
 	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
-		// if(channel has been joined) {
+		 if(isInChan) {
 			CString Nick = "foo";
 			m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + *it, GetClient());
-		// } else {
-		//	PutModule(*it);
-		// }
+		 } else {
+			PutModule(*it);
+		 }
 	}
 
 	if(printedLines == 0) {
 		PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
 	}
 }
+
+bool CBacklogMod::inChan(const CString& Chan) {
+	const std::vector <CChan*>& vChans (m_pNetwork->GetChans());
+
+	for (std::vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it) {
+		CChan *curChan = *it;
+		if(Chan.StrCmp(curChan->GetName()) == 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
 	Info.AddType(CModInfo::NetworkModule);
