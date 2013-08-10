@@ -33,10 +33,11 @@ public:
 	virtual bool OnLoad(const CString& sArgs, CString& sMessage);
 	virtual ~CBacklogMod();
 	virtual void OnModCommand(const CString& sCommand);
-	bool inChan(const CString& Chan);
 
 private:
 	CString			m_sLogPath;
+
+	bool inChan(const CString& Chan);
 };
 
 bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
@@ -163,7 +164,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 		PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
 		return;
 	} else if (isInChan) {
-		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Backlog playback...", GetClient());
+		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + ":Backlog playback...", GetClient());
 	} else {
 		PutModule("*** Backlog playback...");
 	}
@@ -176,14 +177,14 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 			size_t Len = Line.find_first_of(' ', FirstSpace + 1) - FirstSpace;
 			CString Nick = Line.substr(FirstSpace + 2, Len - 3);
 
-			m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstSpace) + Line.substr(FirstSpace + Len, Line.npos), GetClient());
+			m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + ":" + Line.substr(0, FirstSpace) + Line.substr(FirstSpace + Len, Line.npos), GetClient());
 		 } else {
 			PutModule(*it);
 		 }
 	}
 
 	if (isInChan) {
-		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback complete.", GetClient());
+		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + ":" + "Playback complete.", GetClient());
 	} else {
 		PutModule("*** Playback complete.");
 	}
