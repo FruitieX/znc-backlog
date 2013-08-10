@@ -36,21 +36,21 @@ public:
 	bool inChan(const CString& Chan);
 
 private:
-	CString			LogPath;
+	CString			m_sLogPath;
 };
 
 bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
-	LogPath = sArgs;
+	m_sLogPath = sArgs;
 
-	if(LogPath.empty()) {
-		LogPath = GetNV("LogPath");
-		if(LogPath.empty()) {
+	if(m_sLogPath.empty()) {
+		m_sLogPath = GetNV("LogPath");
+		if(m_sLogPath.empty()) {
 			// TODO: guess logpath?
 			PutModule("LogPath is empty, set it with the LogPath command (help for more info)");
 		}
 	} else {
-		SetNV("LogPath", LogPath);
-		PutModule("LogPath set to: " + LogPath);
+		SetNV("LogPath", m_sLogPath);
+		PutModule("LogPath set to: " + m_sLogPath);
 	}
 	return true;
 }
@@ -76,9 +76,9 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 			return;
 		}
 
-		LogPath = sCommand.Token(1, true);
-		SetNV("LogPath", LogPath);
-		PutModule("LogPath set to: " + LogPath);
+		m_sLogPath = sCommand.Token(1, true);
+		SetNV("LogPath", m_sLogPath);
+		PutModule("LogPath set to: " + m_sLogPath);
 		return;
 	}
 
@@ -94,7 +94,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	}
 	reqLines = std::max(std::min(reqLines, 1000), 1);
 
-	CString Path = LogPath.substr(); // make copy
+	CString Path = m_sLogPath.substr(); // make copy
 	Path.Replace("$NETWORK", Network);
 	Path.Replace("$WINDOW", Channel);
 	Path.Replace("$USER", User);
