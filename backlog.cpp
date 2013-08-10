@@ -102,7 +102,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	CString DirPath = Path.substr(0, Path.find_last_of("/"));
 	CString FilePath;
 
-	std::vector<CString> DirList;
+	std::vector<CString> FileList;
 
 	// gather list of all log files for requested channel/window
 	DIR *dir;
@@ -112,7 +112,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 			FilePath = DirPath + "/" + ent->d_name;
 			//PutModule("DEBUG: " + FilePath + " " + Path);
 			if(FilePath.StrCmp(Path, Path.find_last_of("*")) == 0) {
-				DirList.push_back(FilePath);
+				FileList.push_back(FilePath);
 			}
 		}
 		closedir (dir);
@@ -121,10 +121,10 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 		return;
 	}
 
-	std::sort(DirList.begin(), DirList.end());
+	std::sort(FileList.begin(), FileList.end());
 
 	// loop through list of log files and print lines until printedLines == reqLines or end of list
-	for (std::vector<CString>::reverse_iterator it = DirList.rbegin(); it != DirList.rend(); ++it) {
+	for (std::vector<CString>::reverse_iterator it = FileList.rbegin(); it != FileList.rend(); ++it) {
 		CFile LogFile(*it);
 		CString Line;
 		std::vector<CString> Lines;
