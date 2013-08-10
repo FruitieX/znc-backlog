@@ -59,7 +59,7 @@ CBacklogMod::~CBacklogMod() {
 }
 
 void CBacklogMod::OnModCommand(const CString& sCommand) {
-	if (sCommand.Token(0).CaseCmp("help") == 0) {
+	if (sCommand.Token(0).Equals("help")) {
 		// TODO: proper help text, look how AddHelpCommand() does it in other ZNC code
 		PutModule("Usage:");
 		PutModule("<window-name> [num-lines] (e.g. #foo 42)");
@@ -69,7 +69,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 		PutModule("LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date)");
 		return;
 	}
-	else if (sCommand.Token(0).CaseCmp("logpath") == 0) {
+	else if (sCommand.Token(0).Equals("logpath")) {
 		if(sCommand.Token(1, true).empty()) {
 			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date:)");
 			PutModule("Current LogPath is set to: " + GetNV("LogPath"));
