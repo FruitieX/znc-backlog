@@ -66,14 +66,13 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 		return;
 	}
 	else if (sCommand.Token(0).CaseCmp("logpath") == 0) {
-		LogPath = sCommand.Token(1, true);
-
-		if(LogPath.empty()) {
+		if(sCommand.Token(1, true).empty()) {
 			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW)");
 			PutModule("Current LogPath is set to: " + GetNV("LogPath"));
 			return;
 		}
 
+		LogPath = sCommand.Token(1, true);
 		SetNV("LogPath", LogPath);
 		PutModule("LogPath set to: " + LogPath);
 		return;
