@@ -29,13 +29,6 @@
 class CBacklogMod : public CModule {
 public:
 	MODCONSTRUCTOR(CBacklogMod) {}
-		/*
-		AddHelpCommand();
-		AddCommand("LogPath",		static_cast<CModCommand::ModCmdFunc>(&CBacklogMod::SetLogPath),
-			"<path>");
-		AddCommand("Get",			static_cast<CModCommand::ModCmdFunc>(&CBacklogMod::SetLogPath),
-	}
-	*/
 
 	virtual bool OnLoad(const CString& sArgs, CString& sMessage);
 	virtual ~CBacklogMod();
@@ -47,13 +40,13 @@ private:
 
 bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
 	LogPath = sArgs;
-	PutModule("I'm being loaded with the arguments: [" + sArgs + "]");
 
 	if(LogPath.empty()) {
 		LogPath = GetNV("LogPath");
 		if(LogPath.empty()) {
-			// TODO: guess logpath
-
+			// TODO: guess logpath?
+			PutModule("LogPath is empty, set it with the LogPath command");
+			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW)");
 		}
 	} else {
 		SetNV("LogPath", LogPath);
@@ -63,12 +56,11 @@ bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
 }
 
 CBacklogMod::~CBacklogMod() {
-	PutModule("I'm being unloaded!");
 }
 
 void CBacklogMod::OnModCommand(const CString& sCommand) {
 	if (sCommand.Token(0).CaseCmp("help") == 0) {
-		// TODO: help text, look how AddHelpCommand() does it in other ZNC code
+		// TODO: proper help text, look how AddHelpCommand() does it in other ZNC code
 		PutModule("Help");
 		return;
 	}
@@ -77,6 +69,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 		if(LogPath.empty()) {
 			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW)");
+			PutModule("Current LogPath is set to: " + GetNV("LogPath"));
 			return;
 		}
 
@@ -93,7 +86,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	int printedLines = 0;
 	int reqLines = sCommand.Token(1).ToInt();
 	if(reqLines <= 0) {
-		reqLines = 50;
+		reqLines = 150;
 	}
 
 	CString Path = LogPath.substr(); // make copy
