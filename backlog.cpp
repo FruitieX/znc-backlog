@@ -158,8 +158,12 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	// now actually print
 	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
 		 if(isInChan) {
-			CString Nick = "foo";
-			m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + *it, GetClient());
+			CString Line = *it;
+			size_t FirstSpace = Line.find_first_of(' ');
+			size_t Len = Line.find_first_of(' ', FirstSpace + 1) - FirstSpace;
+			CString Nick = Line.substr(FirstSpace + 2, Len - 3);
+
+			m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstSpace) + Line.substr(FirstSpace + Len, Line.npos), GetClient());
 		 } else {
 			PutModule(*it);
 		 }
