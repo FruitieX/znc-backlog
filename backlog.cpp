@@ -156,6 +156,10 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
 		PutModule(*it);
 	}
+
+	if(printedLines == 0) {
+		PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
+	}
 }
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
