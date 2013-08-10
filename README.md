@@ -28,14 +28,14 @@ Upon loading the module for the first time, you have to specify a path to your
 log files with the LogPath command. (can also be specified by passing the
 LogPath as an argument when loading)
 
-	LogPath /path/to/your/logs/$USER\_$NETWORK\_$WINDOW\_\*.log
+	LogPath /path/to/your/logs/$USER_$NETWORK_$WINDOW_*.log
 
 $USER will be replaced with your ZNC username, $NETWORK with the current
 network and $WINDOW with the requested channel/window name.
 
 After the module is loaded and LogPath is set, you can request for logs with:
 
-	/msg \*backlog \<window-name\> \<num-lines\>
+	/msg *backlog <window-name> <num-lines>
 
 
 Currently the module can only be loaded on a per-network basis.
