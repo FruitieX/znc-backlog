@@ -46,8 +46,7 @@ bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
 		LogPath = GetNV("LogPath");
 		if(LogPath.empty()) {
 			// TODO: guess logpath?
-			PutModule("LogPath is empty, set it with the LogPath command");
-			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW)");
+			PutModule("LogPath is empty, set it with the LogPath command (help for more info)");
 		}
 	} else {
 		SetNV("LogPath", LogPath);
@@ -62,12 +61,17 @@ CBacklogMod::~CBacklogMod() {
 void CBacklogMod::OnModCommand(const CString& sCommand) {
 	if (sCommand.Token(0).CaseCmp("help") == 0) {
 		// TODO: proper help text, look how AddHelpCommand() does it in other ZNC code
-		PutModule("Help");
+		PutModule("Usage:");
+		PutModule("<window-name> [num-lines] (e.g. #foo 42)");
+		PutModule("");
+		PutModule("Commands:");
+		PutModule("Help (print this text)");
+		PutModule("LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date)");
 		return;
 	}
 	else if (sCommand.Token(0).CaseCmp("logpath") == 0) {
 		if(sCommand.Token(1, true).empty()) {
-			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW)");
+			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date:)");
 			PutModule("Current LogPath is set to: " + GetNV("LogPath"));
 			return;
 		}
