@@ -155,6 +155,15 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 	bool isInChan = CBacklogMod::inChan(Channel);
 
+	if(printedLines == 0) {
+		PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
+		return;
+	} else if (isInChan) {
+		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Backlog playback...", GetClient());
+	} else {
+		PutModule("*** Backlog playback...");
+	}
+
 	// now actually print
 	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
 		 if(isInChan) {
@@ -169,8 +178,10 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 		 }
 	}
 
-	if(printedLines == 0) {
-		PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
+	if (isInChan) {
+		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback complete.", GetClient());
+	} else {
+		PutModule("*** Playback complete.");
 	}
 }
 
