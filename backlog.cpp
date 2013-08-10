@@ -103,6 +103,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	CString FilePath;
 
 	std::vector<CString> FileList;
+	std::vector<CString> LinesToPrint;
 
 	// gather list of all log files for requested channel/window
 	DIR *dir;
@@ -123,7 +124,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 	std::sort(FileList.begin(), FileList.end());
 
-	// loop through list of log files and print lines until printedLines == reqLines or end of list
+	// loop through list of log files one by one starting from most recent...
 	for (std::vector<CString>::reverse_iterator it = FileList.rbegin(); it != FileList.rend(); ++it) {
 		CFile LogFile(*it);
 		CString Line;
@@ -131,6 +132,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 		if (LogFile.Open()) {
 			while (LogFile.ReadLine(Line)) {
+				// store lines from file into Lines
 				Lines.push_back(Line);
 			}
 		} else {
@@ -140,14 +142,24 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 		LogFile.Close();
 
-		for (std::vector<CString>::iterator itl = Lines.begin(); itl != Lines.end(); ++itl) {
-			PutModule(*itl);
+		// loop through Lines in reverse order, push to LinesToPrint
+		for (std::vector<CString>::reverse_iterator itl = Lines.rbegin(); itl != Lines.rend(); ++itl) {
+			LinesToPrint.push_back(*itl);
 			printedLines++;
 
 			if(printedLines >= reqLines) {
-				return;
+				break;
 			}
 		}
+
+		if(printedLines >= reqLines) {
+			break;
+		}
+	}
+
+	// now actually print
+	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
+		PutModule(*it);
 	}
 }
 
