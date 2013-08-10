@@ -189,7 +189,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 	// now actually print
 	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
-		 //if(isInChan || true) {
+		if(isInChan || true) {
 			CString Line = *it;
 			size_t FirstWS = Line.find_first_of(' '); // position of first whitespace char in line
 			size_t NickLen = 3;
@@ -210,9 +210,9 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 			} catch (int e) {
 				PutModule("Malformed log line! " + Line);
 			}
-		 //} else {
-			//PutModule(*it);
-		 //}
+		} else {
+			PutModule(*it);
+		}
 	}
 
 	if (isInChan) {
