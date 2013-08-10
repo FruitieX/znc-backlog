@@ -26,7 +26,7 @@ Usage
 
 Upon loading the module for the first time, you have to specify a path to your
 log files with the LogPath command. (can also be specified by passing the
-LogPath as an argument when loading)
+path as an argument when loading the module)
 
 	LogPath /path/to/your/logs/$USER_$NETWORK_$WINDOW_*.log
 
