@@ -17,7 +17,12 @@
 #include <znc/FileUtils.h>
 #include <znc/Client.h>
 #include <znc/Chan.h>
+#include <znc/User.h>
+#include <znc/IRCNetwork.h>
 #include <znc/Modules.h>
+#include <dirent.h>
+#include <vector>
+#include <algorithm>
 
 class CBacklogMod : public CModule {
 public:
@@ -67,27 +72,83 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	}
 	else if (sCommand.Token(0).CaseCmp("logpath") == 0) {
 		LogPath = sCommand.Token(1, true);
+
+		if(LogPath.empty()) {
+			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW)");
+			return;
+		}
+
 		SetNV("LogPath", LogPath);
 		PutModule("LogPath set to: " + LogPath);
 		return;
 	}
 
-	CString User;
-	CString Network;
-	CString Channel;
+	// TODO: handle these differently depending on how the module was loaded
+	CString User = (m_pUser ? m_pUser->GetUserName() : "UNKNOWN");
+	CString Network = (m_pNetwork ? m_pNetwork->GetName() : "znc");
+	CString Channel = sCommand.Token(0);
 
-	CFile LogFile(sCommand);
-	CString Line;
-
-	if (LogFile.Open()) {
-		while (LogFile.ReadLine(Line)) {
-			PutModule(Line);
-		}
-	} else {
-		PutModule("Could not open log file [" + sCommand + "]: " + strerror(errno));
+	int printedLines = 0;
+	int reqLines = sCommand.Token(1).ToInt();
+	if(reqLines <= 0) {
+		reqLines = 50;
 	}
 
-	LogFile.Close();
+	CString Path = LogPath.substr(); // make copy
+	Path.Replace("$NETWORK", Network);
+	Path.Replace("$WINDOW", Channel);
+	Path.Replace("$USER", User);
+
+	CString DirPath = Path.substr(0, Path.find_last_of("/"));
+	CString FilePath;
+
+	std::vector<CString> DirList;
+
+	// gather list of all log files for requested channel/window
+	DIR *dir;
+	struct dirent *ent;
+	if ((dir = opendir (DirPath.c_str())) != NULL) {
+		while ((ent = readdir (dir)) != NULL) {
+			FilePath = DirPath + "/" + ent->d_name;
+			//PutModule("DEBUG: " + FilePath + " " + Path);
+			if(FilePath.StrCmp(Path, Path.find_last_of("*")) == 0) {
+				DirList.push_back(FilePath);
+			}
+		}
+		closedir (dir);
+	} else {
+		PutModule("Could not list directory " + DirPath + ": " + strerror(errno));
+		return;
+	}
+
+	std::sort(DirList.begin(), DirList.end());
+
+	// loop through list of log files and print lines until printedLines == reqLines or end of list
+	for (std::vector<CString>::reverse_iterator it = DirList.rbegin(); it != DirList.rend(); ++it) {
+		CFile LogFile(*it);
+		CString Line;
+		std::vector<CString> Lines;
+
+		if (LogFile.Open()) {
+			while (LogFile.ReadLine(Line)) {
+				Lines.push_back(Line);
+			}
+		} else {
+			PutModule("Could not open log file [" + sCommand + "]: " + strerror(errno));
+			continue;
+		}
+
+		LogFile.Close();
+
+		for (std::vector<CString>::iterator itl = Lines.begin(); itl != Lines.end(); ++itl) {
+			PutModule(*itl);
+			printedLines++;
+
+			if(printedLines >= reqLines) {
+				return;
+			}
+		}
+	}
 }
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
