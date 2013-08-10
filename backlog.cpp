@@ -154,7 +154,12 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 	// now actually print
 	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
-		PutModule(*it);
+		// if(channel has been joined) {
+			CString Nick = "foo";
+			m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + *it, GetClient());
+		// } else {
+		//	PutModule(*it);
+		// }
 	}
 
 	if(printedLines == 0) {
