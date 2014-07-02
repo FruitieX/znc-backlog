@@ -121,7 +121,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 		while ((ent = readdir (dir)) != NULL) {
 			FilePath = DirPath + "/" + ent->d_name;
 			//PutModule("DEBUG: " + FilePath + " " + Path);
-			if(FilePath.StrCmp(Path, Path.find_last_of("*")) == 0) {
+			if(FilePath.AsLower().StrCmp(Path.AsLower(), Path.find_last_of("*")) == 0) {
 				FileList.push_back(FilePath);
 			}
 		}
