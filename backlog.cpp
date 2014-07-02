@@ -216,9 +216,9 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 	}
 
 	if (isInChan) {
-		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback complete.", GetClient());
+		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback Complete.", GetClient());
 	} else {
-		PutModule("*** Playback complete.");
+		PutModule("*** Playback Complete.");
 	}
 }
 
