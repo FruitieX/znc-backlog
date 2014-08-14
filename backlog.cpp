@@ -176,50 +176,38 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
         }
     }
 
-    bool isInChan = CBacklogMod::inChan(Channel);
-
     if(printedLines == 0) {
         PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
         return;
-    } else if (isInChan) {
-        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
     } else {
-        PutModule("*** Backlog playback...");
+        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
     }
 
     // now actually print
     for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
-        if(isInChan) {
-            CString Line = *it;
-            size_t FirstWS = Line.find_first_of(' '); // position of first whitespace char in line
-            size_t NickLen = 3;
-            CString Nick = "***";
+        CString Line = *it;
+        size_t FirstWS = Line.find_first_of(' '); // position of first whitespace char in line
+        size_t NickLen = 3;
+        CString Nick = "***";
 
-            try {
-                // a log line looks like: [HH:MM:SS] <Nick> Message
-                // < and > are illegal characters in nicknames, so we can
-                // search for these
-                if(Line.at(FirstWS + 1) == '<') { // normal message
-                    // nicklen includes surrounding < >
-                    NickLen = Line.find_first_of('>') - Line.find_first_of('<') + 1;
-                    // but we don't want them in Nick so subtract by two
-                    Nick = Line.substr(FirstWS + 2, NickLen - 2);
-                }
-
-                m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
-            } catch (int e) {
-                PutModule("Malformed log line! " + Line);
+        try {
+            // a log line looks like: [HH:MM:SS] <Nick> Message
+            // < and > are illegal characters in nicknames, so we can
+            // search for these
+            if(Line.at(FirstWS + 1) == '<') { // normal message
+                // nicklen includes surrounding < >
+                NickLen = Line.find_first_of('>') - Line.find_first_of('<') + 1;
+                // but we don't want them in Nick so subtract by two
+                Nick = Line.substr(FirstWS + 2, NickLen - 2);
             }
-        } else {
-            PutModule(*it);
+
+            m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
+        } catch (int e) {
+            PutModule("Malformed log line! " + Line);
         }
     }
 
-    if (isInChan) {
-        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback Complete.", GetClient());
-    } else {
-        PutModule("*** Playback Complete.");
-    }
+    m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback Complete.", GetClient());
 }
 
 bool CBacklogMod::inChan(const CString& Chan) {
