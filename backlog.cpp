@@ -28,221 +28,221 @@
 
 class CBacklogMod : public CModule {
 public:
-	MODCONSTRUCTOR(CBacklogMod) {}
+    MODCONSTRUCTOR(CBacklogMod) {}
 
-	virtual bool OnLoad(const CString& sArgs, CString& sMessage);
-	virtual ~CBacklogMod();
-	virtual void OnModCommand(const CString& sCommand);
+    virtual bool OnLoad(const CString& sArgs, CString& sMessage);
+    virtual ~CBacklogMod();
+    virtual void OnModCommand(const CString& sCommand);
 
 private:
-	bool inChan(const CString& Chan);
+    bool inChan(const CString& Chan);
 };
 
 bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
-	CString LogPath = sArgs;
+    CString LogPath = sArgs;
 
-	if(LogPath.empty()) {
-		LogPath = GetNV("LogPath");
-		if(LogPath.empty()) {
-			// TODO: guess logpath?
-			PutModule("LogPath is empty, set it with the LogPath command (help for more info)");
-		}
-	} else {
-		SetNV("LogPath", LogPath);
-		PutModule("LogPath set to: " + LogPath);
-	}
-	return true;
+    if(LogPath.empty()) {
+        LogPath = GetNV("LogPath");
+        if(LogPath.empty()) {
+            // TODO: guess logpath?
+            PutModule("LogPath is empty, set it with the LogPath command (help for more info)");
+        }
+    } else {
+        SetNV("LogPath", LogPath);
+        PutModule("LogPath set to: " + LogPath);
+    }
+    return true;
 }
 
 CBacklogMod::~CBacklogMod() {
 }
 
 void CBacklogMod::OnModCommand(const CString& sCommand) {
-	CString Arg = sCommand.Token(1);
-	if (sCommand.Token(0).Equals("help")) {
-		// TODO: proper help text, look how AddHelpCommand() does it in other ZNC code
-		PutModule("Usage:");
-		PutModule("<window-name> [num-lines] (e.g. #foo 42)");
-		PutModule("");
-		PutModule("Commands:");
-		PutModule("Help (print this text)");
-		PutModule("LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date)");
-		PutModule("PrintStatusMsgs true/false (print join/part/rename messages)");
-		return;
-	} else if (sCommand.Token(0).Equals("logpath")) {
-		if(Arg.empty()) {
-			PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date:)");
-			PutModule("Current LogPath is set to: " + GetNV("LogPath"));
-			return;
-		}
+    CString Arg = sCommand.Token(1);
+    if (sCommand.Token(0).Equals("help")) {
+        // TODO: proper help text, look how AddHelpCommand() does it in other ZNC code
+        PutModule("Usage:");
+        PutModule("<window-name> [num-lines] (e.g. #foo 42)");
+        PutModule("");
+        PutModule("Commands:");
+        PutModule("Help (print this text)");
+        PutModule("LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date)");
+        PutModule("PrintStatusMsgs true/false (print join/part/rename messages)");
+        return;
+    } else if (sCommand.Token(0).Equals("logpath")) {
+        if(Arg.empty()) {
+            PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date:)");
+            PutModule("Current LogPath is set to: " + GetNV("LogPath"));
+            return;
+        }
 
-		CString LogPath = sCommand.Token(1, true);
-		SetNV("LogPath", LogPath);
-		PutModule("LogPath set to: " + LogPath);
-		return;
-	} else if (sCommand.Token(0).Equals("PrintStatusMsgs")) {
-		if(Arg.empty() || (!Arg.Equals("true", true) && !Arg.Equals("false", true))) {
-			PutModule("Usage: PrintStatusMsgs true/false");
-			return;
-		}
+        CString LogPath = sCommand.Token(1, true);
+        SetNV("LogPath", LogPath);
+        PutModule("LogPath set to: " + LogPath);
+        return;
+    } else if (sCommand.Token(0).Equals("PrintStatusMsgs")) {
+        if(Arg.empty() || (!Arg.Equals("true", true) && !Arg.Equals("false", true))) {
+            PutModule("Usage: PrintStatusMsgs true/false");
+            return;
+        }
 
-		SetNV("PrintStatusMsgs", Arg);
-		PutModule("PrintStatusMsgs set to: " + Arg);
-		return;
-	}
+        SetNV("PrintStatusMsgs", Arg);
+        PutModule("PrintStatusMsgs set to: " + Arg);
+        return;
+    }
 
-	// TODO: handle these differently depending on how the module was loaded
-	CString User = (m_pUser ? m_pUser->GetUserName() : "UNKNOWN");
-	CString Network = (m_pNetwork ? m_pNetwork->GetName() : "znc");
-	CString Channel = sCommand.Token(0);
+    // TODO: handle these differently depending on how the module was loaded
+    CString User = (m_pUser ? m_pUser->GetUserName() : "UNKNOWN");
+    CString Network = (m_pNetwork ? m_pNetwork->GetName() : "znc");
+    CString Channel = sCommand.Token(0);
 
-	int printedLines = 0;
-	int reqLines = sCommand.Token(1).ToInt();
-	if(reqLines <= 0) {
-		reqLines = 150;
-	}
-	reqLines = std::max(std::min(reqLines, 1000), 1);
+    int printedLines = 0;
+    int reqLines = sCommand.Token(1).ToInt();
+    if(reqLines <= 0) {
+        reqLines = 150;
+    }
+    reqLines = std::max(std::min(reqLines, 1000), 1);
 
-	CString Path = GetNV("LogPath").substr(); // make copy
-	Path.Replace("$NETWORK", Network);
-	Path.Replace("$WINDOW", Channel);
-	Path.Replace("$USER", User);
+    CString Path = GetNV("LogPath").substr(); // make copy
+    Path.Replace("$NETWORK", Network);
+    Path.Replace("$WINDOW", Channel);
+    Path.Replace("$USER", User);
 
-	CString DirPath = Path.substr(0, Path.find_last_of("/"));
-	CString FilePath;
+    CString DirPath = Path.substr(0, Path.find_last_of("/"));
+    CString FilePath;
 
-	std::vector<CString> FileList;
-	std::vector<CString> LinesToPrint;
+    std::vector<CString> FileList;
+    std::vector<CString> LinesToPrint;
 
-	// gather list of all log files for requested channel/window
-	DIR *dir;
-	struct dirent *ent;
-	if ((dir = opendir (DirPath.c_str())) != NULL) {
-		while ((ent = readdir (dir)) != NULL) {
-			FilePath = DirPath + "/" + ent->d_name;
-			//PutModule("DEBUG: " + FilePath + " " + Path);
-			if(FilePath.AsLower().StrCmp(Path.AsLower(), Path.find_last_of("*")) == 0) {
-				FileList.push_back(FilePath);
-			}
-		}
-		closedir (dir);
-	} else {
-		PutModule("Could not list directory " + DirPath + ": " + strerror(errno));
-		return;
-	}
+    // gather list of all log files for requested channel/window
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir (DirPath.c_str())) != NULL) {
+        while ((ent = readdir (dir)) != NULL) {
+            FilePath = DirPath + "/" + ent->d_name;
+            //PutModule("DEBUG: " + FilePath + " " + Path);
+            if(FilePath.AsLower().StrCmp(Path.AsLower(), Path.find_last_of("*")) == 0) {
+                FileList.push_back(FilePath);
+            }
+        }
+        closedir (dir);
+    } else {
+        PutModule("Could not list directory " + DirPath + ": " + strerror(errno));
+        return;
+    }
 
-	std::sort(FileList.begin(), FileList.end());
+    std::sort(FileList.begin(), FileList.end());
 
-	// loop through list of log files one by one starting from most recent...
-	for (std::vector<CString>::reverse_iterator it = FileList.rbegin(); it != FileList.rend(); ++it) {
-		CFile LogFile(*it);
-		CString Line;
-		std::vector<CString> Lines;
+    // loop through list of log files one by one starting from most recent...
+    for (std::vector<CString>::reverse_iterator it = FileList.rbegin(); it != FileList.rend(); ++it) {
+        CFile LogFile(*it);
+        CString Line;
+        std::vector<CString> Lines;
 
-		if (LogFile.Open()) {
-			while (LogFile.ReadLine(Line)) {
-				try {
-					// is line a part/join/rename etc message (nick ***), do we want to print it?
-					// find nick by finding first whitespace, then moving one char right
-					if(Line.at(Line.find_first_of(' ') + 1) == '*' && !GetNV("PrintStatusMsgs").ToBool()) {
-						continue;
-					}
+        if (LogFile.Open()) {
+            while (LogFile.ReadLine(Line)) {
+                try {
+                    // is line a part/join/rename etc message (nick ***), do we want to print it?
+                    // find nick by finding first whitespace, then moving one char right
+                    if(Line.at(Line.find_first_of(' ') + 1) == '*' && !GetNV("PrintStatusMsgs").ToBool()) {
+                        continue;
+                    }
 
-					Lines.push_back(Line);
-				} catch (int e) {
-					// malformed log line, ignore
-					PutModule("Malformed log line found in " + *it + ": " + Line);
-				}
-			}
-		} else {
-			PutModule("Could not open log file [" + sCommand + "]: " + strerror(errno));
-			continue;
-		}
+                    Lines.push_back(Line);
+                } catch (int e) {
+                    // malformed log line, ignore
+                    PutModule("Malformed log line found in " + *it + ": " + Line);
+                }
+            }
+        } else {
+            PutModule("Could not open log file [" + sCommand + "]: " + strerror(errno));
+            continue;
+        }
 
-		LogFile.Close();
+        LogFile.Close();
 
-		// loop through Lines in reverse order, push to LinesToPrint
-		for (std::vector<CString>::reverse_iterator itl = Lines.rbegin(); itl != Lines.rend(); ++itl) {
-			LinesToPrint.push_back(*itl);
-			printedLines++;
+        // loop through Lines in reverse order, push to LinesToPrint
+        for (std::vector<CString>::reverse_iterator itl = Lines.rbegin(); itl != Lines.rend(); ++itl) {
+            LinesToPrint.push_back(*itl);
+            printedLines++;
 
-			if(printedLines >= reqLines) {
-				break;
-			}
-		}
+            if(printedLines >= reqLines) {
+                break;
+            }
+        }
 
-		if(printedLines >= reqLines) {
-			break;
-		}
-	}
+        if(printedLines >= reqLines) {
+            break;
+        }
+    }
 
-	bool isInChan = CBacklogMod::inChan(Channel);
+    bool isInChan = CBacklogMod::inChan(Channel);
 
-	if(printedLines == 0) {
-		PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
-		return;
-	} else if (isInChan) {
-		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
-	} else {
-		PutModule("*** Backlog playback...");
-	}
+    if(printedLines == 0) {
+        PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
+        return;
+    } else if (isInChan) {
+        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
+    } else {
+        PutModule("*** Backlog playback...");
+    }
 
-	// now actually print
-	for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
-		if(isInChan) {
-			CString Line = *it;
-			size_t FirstWS = Line.find_first_of(' '); // position of first whitespace char in line
-			size_t NickLen = 3;
-			CString Nick = "***";
+    // now actually print
+    for (std::vector<CString>::reverse_iterator it = LinesToPrint.rbegin(); it != LinesToPrint.rend(); ++it) {
+        if(isInChan) {
+            CString Line = *it;
+            size_t FirstWS = Line.find_first_of(' '); // position of first whitespace char in line
+            size_t NickLen = 3;
+            CString Nick = "***";
 
-			try {
-				// a log line looks like: [HH:MM:SS] <Nick> Message
-				// < and > are illegal characters in nicknames, so we can
-				// search for these
-				if(Line.at(FirstWS + 1) == '<') { // normal message
-					// nicklen includes surrounding < >
-					NickLen = Line.find_first_of('>') - Line.find_first_of('<') + 1;
-					// but we don't want them in Nick so subtract by two
-					Nick = Line.substr(FirstWS + 2, NickLen - 2);
-				}
+            try {
+                // a log line looks like: [HH:MM:SS] <Nick> Message
+                // < and > are illegal characters in nicknames, so we can
+                // search for these
+                if(Line.at(FirstWS + 1) == '<') { // normal message
+                    // nicklen includes surrounding < >
+                    NickLen = Line.find_first_of('>') - Line.find_first_of('<') + 1;
+                    // but we don't want them in Nick so subtract by two
+                    Nick = Line.substr(FirstWS + 2, NickLen - 2);
+                }
 
-				m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
-			} catch (int e) {
-				PutModule("Malformed log line! " + Line);
-			}
-		} else {
-			PutModule(*it);
-		}
-	}
+                m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
+            } catch (int e) {
+                PutModule("Malformed log line! " + Line);
+            }
+        } else {
+            PutModule(*it);
+        }
+    }
 
-	if (isInChan) {
-		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback complete.", GetClient());
-	} else {
-		PutModule("*** Playback complete.");
-	}
+    if (isInChan) {
+        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback complete.", GetClient());
+    } else {
+        PutModule("*** Playback complete.");
+    }
 }
 
 bool CBacklogMod::inChan(const CString& Chan) {
-	const std::vector <CChan*>& vChans (m_pNetwork->GetChans());
+    const std::vector <CChan*>& vChans (m_pNetwork->GetChans());
 
-	for (std::vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it) {
-		CChan *curChan = *it;
-		if(Chan.StrCmp(curChan->GetName()) == 0) {
-			return true;
-		}
-	}
+    for (std::vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it) {
+        CChan *curChan = *it;
+        if(Chan.StrCmp(curChan->GetName()) == 0) {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
-	Info.AddType(CModInfo::NetworkModule);
-	Info.AddType(CModInfo::GlobalModule);
-	Info.SetWikiPage("backlog");
-	Info.SetArgsHelpText("Takes as optional argument (and if given, sets) the log path, use keywords: $USER, $NETWORK and $WINDOW");
-	Info.SetHasArgs(true);
+    Info.AddType(CModInfo::NetworkModule);
+    Info.AddType(CModInfo::GlobalModule);
+    Info.SetWikiPage("backlog");
+    Info.SetArgsHelpText("Takes as optional argument (and if given, sets) the log path, use keywords: $USER, $NETWORK and $WINDOW");
+    Info.SetHasArgs(true);
 }
 
 NETWORKMODULEDEFS(CBacklogMod, "Module for getting the last X lines of a channels log.")
