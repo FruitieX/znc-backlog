@@ -33,9 +33,6 @@ public:
     virtual bool OnLoad(const CString& sArgs, CString& sMessage);
     virtual ~CBacklogMod();
     virtual void OnModCommand(const CString& sCommand);
-
-private:
-    bool inChan(const CString& Chan);
 };
 
 bool CBacklogMod::OnLoad(const CString& sArgs, CString& sMessage) {
@@ -209,21 +206,6 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
     m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback Complete.", GetClient());
 }
-
-bool CBacklogMod::inChan(const CString& Chan) {
-    const std::vector <CChan*>& vChans (m_pNetwork->GetChans());
-
-    for (std::vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it) {
-        CChan *curChan = *it;
-        if(Chan.StrCmp(curChan->GetName()) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
     Info.AddType(CModInfo::NetworkModule);
