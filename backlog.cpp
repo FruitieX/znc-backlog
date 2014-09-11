@@ -174,7 +174,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
     }
 
     if(printedLines == 0) {
-        PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
+        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :No log files found for window " + Channel + " in " + DirPath + "/", GetClient());
         return;
     } else {
         m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
