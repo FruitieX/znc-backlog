@@ -178,12 +178,18 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
 	bool isInChan = CBacklogMod::inChan(Channel);
 
-	if(printedLines == 0) {
-		PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
-		return;
-	} else if (isInChan) {
-		m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
+    if (isInChan) {
+        if(printedLines == 0) {
+            m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :No log files found for window " + Channel + " in " + DirPath + "/", GetClient());
+            return;
+        }
+        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
 	} else {
+        if(printedLines == 0) {
+            PutModule("No log files found for window " + Channel + " in " + DirPath + "/");
+            return;
+        }
+
 		PutModule("*** Backlog playback...");
 	}
 
