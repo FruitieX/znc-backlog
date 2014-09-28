@@ -186,6 +186,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
         size_t FirstWS = Line.find_first_of(' '); // position of first whitespace char in line
         size_t NickLen = 3;
         CString Nick = "***";
+        CString MessageType = "PRIVMSG ";
 
         try {
             // a log line looks like: [HH:MM:SS] <Nick> Message
@@ -197,8 +198,15 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
                 // but we don't want them in Nick so subtract by two
                 Nick = Line.substr(FirstWS + 2, NickLen - 2);
             }
+            else if(Line.at(FirstWS + 1) == '-') { // IRC notice
+                // nicklen includes surrounding - -
+                NickLen = Line.find_first_of('-', FirstWS + 2) - Line.find_first_of('-') + 1;
+                // but we don't want them in Nick so subtract by two
+                Nick = Line.substr(FirstWS + 2, NickLen - 2);
+                MessageType = "NOTICE ";
+            }
 
-            m_pNetwork->PutUser(":" + Nick + "!znc@znc.in PRIVMSG " + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
+            m_pNetwork->PutUser(":" + Nick + "!znc@znc.in " + MessageType + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
         } catch (int e) {
             PutModule("Malformed log line! " + Line);
         }
