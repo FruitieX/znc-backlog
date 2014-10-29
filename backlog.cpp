@@ -102,7 +102,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
     CString Path = GetNV("LogPath").substr(); // make copy
     Path.Replace("$NETWORK", Network);
-    Path.Replace("$WINDOW", Channel);
+    Path.Replace("$WINDOW", Channel.AsLower());
     Path.Replace("$USER", User);
 
     CString DirPath = Path.substr(0, Path.find_last_of("/"));
