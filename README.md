@@ -16,7 +16,7 @@ Requires make and znc-buildmod to build (should come bundled with ZNC)
 Compiling & Installing
 ----------------------
 
-	git clone git://github.com/FruitieX/znc-backlog
+	git clone https://github.com/FruitieX/znc-backlog
 	cd znc-backlog
 	make
 	cp backlog.so /path/to/znc/modules/
