@@ -136,7 +136,13 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
         CString Line;
         std::vector<CString> Lines;
 
+        if (LogFile.GetShortName() == "." || LogFile.GetShortName() == "..") {
+            continue;
+        }
+
         if (LogFile.Open()) {
+            Lines.push_back("[00:00:00] <***> File: " + LogFile.GetShortName()); //Parse name to get date prettier?
+            printedLines--;
             while (LogFile.ReadLine(Line)) {
                 try {
                     // is line a part/join/rename etc message (nick ***), do we want to print it?
@@ -173,7 +179,7 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
         }
     }
 
-    if(printedLines == 0) {
+    if(printedLines <= 0) {
         m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :No log files found for window " + Channel + " in " + DirPath + "/", GetClient());
         return;
     } else {
