@@ -136,7 +136,13 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
         CString Line;
         std::vector<CString> Lines;
 
+        if (LogFile.GetShortName() == "." || LogFile.GetShortName() == "..") {
+            continue;
+        }
+
         if (LogFile.Open()) {
+            Lines.push_back("[00:00:00] <***> File: " + LogFile.GetShortName()); //Parse name to get date prettier?
+            printedLines--;
             while (LogFile.ReadLine(Line)) {
                 try {
                     // is line a part/join/rename etc message (nick ***), do we want to print it?
@@ -173,11 +179,17 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
         }
     }
 
-    if(printedLines == 0) {
+    if(printedLines <= 0) {
         m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :No log files found for window " + Channel + " in " + DirPath + "/", GetClient());
         return;
     } else {
-        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
+        //RFC prefixes: # ! & +
+        if (Channel.StartsWith("#") || Channel.StartsWith("&") ||
+            Channel.StartsWith("!") || Channel.StartsWith("+")) { //Normal channel
+            m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :Backlog playback...", GetClient());
+        } else {
+            m_pNetwork->PutUser(":" + Channel + "!znc@znc.in PRIVMSG " + Channel + " :<***> Backlog playback...", GetClient());
+        }
     }
 
     // now actually print
@@ -206,13 +218,26 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
                 MessageType = "NOTICE ";
             }
 
-            m_pNetwork->PutUser(":" + Nick + "!znc@znc.in " + MessageType + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
+            //RFC prefixes: # ! & +
+            if (Channel.StartsWith("#") || Channel.StartsWith("&") ||
+                Channel.StartsWith("!") || Channel.StartsWith("+")) { //Normal channel
+                m_pNetwork->PutUser(":" + Nick + "!znc@znc.in " + MessageType + Channel + " :" + Line.substr(0, FirstWS) + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
+            } else { //Privmsg
+                m_pNetwork->PutUser(":" + Channel + "!znc@znc.in " + MessageType + Channel + " :" + Line.substr(0, FirstWS)  + " <" + Nick + ">" + Line.substr(FirstWS + NickLen + 1, Line.npos), GetClient());
+            }       
+
+            
         } catch (int e) {
             PutModule("Malformed log line! " + Line);
         }
     }
 
-    m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback Complete.", GetClient());
+    if (Channel.StartsWith("#") || Channel.StartsWith("&") ||
+        Channel.StartsWith("!") || Channel.StartsWith("+")) { //Normal channel
+        m_pNetwork->PutUser(":***!znc@znc.in PRIVMSG " + Channel + " :" + "Playback Complete.", GetClient());
+    } else {
+        m_pNetwork->PutUser(":" + Channel + "!znc@znc.in PRIVMSG " + Channel + " :<***> " + "Playback Complete.", GetClient());
+    }
 }
 
 template<> void TModInfo<CBacklogMod>(CModInfo& Info) {
