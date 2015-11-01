@@ -116,7 +116,10 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
     // gather list of all log files for requested channel/window
     DIR *dir;
     struct dirent *ent;
-    if ((dir = opendir (DirPath.c_str())) != NULL) {
+    std::string s;
+    DirPath.Convert(&s);
+
+    if ((dir = opendir (s.c_str())) != NULL) {
         while ((ent = readdir (dir)) != NULL) {
             FilePath = DirPath + "/" + ent->d_name;
             //PutModule("DEBUG: " + FilePath + " " + Path);
