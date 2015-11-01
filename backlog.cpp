@@ -101,6 +101,8 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
     reqLines = std::max(std::min(reqLines, 1000), 1);
 
     CString Path = GetNV("LogPath").substr(); // make copy
+
+    Path.TrimPrefix("LogPath ");
     Path.Replace("$NETWORK", Network);
     Path.Replace("$WINDOW", CString(Channel.Replace_n("/", "-").Replace_n("\\", "-")).AsLower());
     Path.Replace("$USER", User);
