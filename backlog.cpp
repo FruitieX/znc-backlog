@@ -101,6 +101,8 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
     reqLines = std::max(std::min(reqLines, 1000), 1);
 
     CString Path = GetNV("LogPath").substr(); // make copy
+
+    Path.TrimPrefix("LogPath ");
     Path.Replace("$NETWORK", Network);
     Path.Replace("$WINDOW", CString(Channel.Replace_n("/", "-").Replace_n("\\", "-")).AsLower());
     Path.Replace("$USER", User);
@@ -114,7 +116,10 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
     // gather list of all log files for requested channel/window
     DIR *dir;
     struct dirent *ent;
-    if ((dir = opendir (DirPath.c_str())) != NULL) {
+    std::string s;
+    DirPath.Convert(&s);
+
+    if ((dir = opendir (s.c_str())) != NULL) {
         while ((ent = readdir (dir)) != NULL) {
             FilePath = DirPath + "/" + ent->d_name;
             //PutModule("DEBUG: " + FilePath + " " + Path);
