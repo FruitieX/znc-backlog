@@ -63,12 +63,12 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
         PutModule("");
         PutModule("Commands:");
         PutModule("Help (print this text)");
-        PutModule("LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date)");
+        PutModule("LogPath <path> (use keywords $USER, $NETWORK, $WINDOW, $user, $network and an asterisk * for date)");
         PutModule("PrintStatusMsgs true/false (print join/part/rename messages)");
         return;
     } else if (sCommand.Token(0).Equals("logpath")) {
         if(Arg.empty()) {
-            PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW and an asterisk * for date:)");
+            PutModule("Usage: LogPath <path> (use keywords $USER, $NETWORK, $WINDOW, $user, $network and an asterisk * for date:)");
             PutModule("Current LogPath is set to: " + GetNV("LogPath"));
             return;
         }
@@ -102,8 +102,10 @@ void CBacklogMod::OnModCommand(const CString& sCommand) {
 
     CString Path = GetNV("LogPath").substr(); // make copy
     Path.Replace("$NETWORK", Network);
+    Path.Replace("$network", Network.AsLower());
     Path.Replace("$WINDOW", CString(Channel.Replace_n("/", "-").Replace_n("\\", "-")).AsLower());
     Path.Replace("$USER", User);
+    Path.Replace("$user", User.AsLower());
 
     CString DirPath = Path.substr(0, Path.find_last_of("/"));
     CString FilePath;

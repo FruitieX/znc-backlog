@@ -31,7 +31,8 @@ path as an argument when loading the module)
 	LogPath /path/to/your/logs/$USER_$NETWORK_$WINDOW_*.log
 
 **$USER** will be replaced with your ZNC username, **$NETWORK** with the current
-network and **$WINDOW** with the requested channel/window name. The last found
+network and **$WINDOW** with the requested channel/window name. **$user** and
+**$network** can also be used to force the string to be lowercase. The last found
 asterisk character **'\*'** in the string is assumed to be a date, and the order in
 which the files are read is determined by a simple alphabetical sort. (ie.
 date format order must be year-month-date)
